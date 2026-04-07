@@ -1,4 +1,4 @@
 export interface Administrador {
-  id_administrador: string;
+  id_administrador: number;
   nombre: string;
 }

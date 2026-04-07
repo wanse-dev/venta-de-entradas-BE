@@ -1,5 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
+import routes from "./routes/index.js";
 import { connectDB } from "./database.js";
 
 const app = express();
@@ -17,6 +18,8 @@ app.get("/", (req: Request, res: Response) => {
 app.get("/ping", (req: Request, res: Response) => {
   res.status(200).send("OK");
 });
+
+app.use("/api", routes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

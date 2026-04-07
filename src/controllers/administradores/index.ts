@@ -4,9 +4,9 @@ import { sequelize } from "../../database.js";
 
 const adminAlta = async (req: Request, res: Response) => {
   try {
-    const { id_administrador, nombre } = req.body as Administrador;
-    await sequelize.query("CALL spu_admin_alta(:id_administrador, :nombre)", {
-      replacements: { id_administrador, nombre },
+    const { nombre } = req.body as Administrador;
+    await sequelize.query("CALL spu_admin_alta(:nombre)", {
+      replacements: { nombre },
     });
     res.status(201).json({
       message: "Administrador creado exitosamente",
