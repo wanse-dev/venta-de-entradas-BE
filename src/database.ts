@@ -8,7 +8,7 @@ export const sequelize = new Sequelize(
     host: process.env.DB_HOST || "localhost",
     dialect: "mysql",
     logging: false,
-  }
+  },
 );
 
 export const connectDB = async () => {
