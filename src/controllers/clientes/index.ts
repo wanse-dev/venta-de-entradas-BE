@@ -5,9 +5,12 @@ import { sequelize } from "../../database.js";
 const clienteAlta = async (req: Request, res: Response) => {
   try {
     const { nombre, apellido, dni, contacto } = req.body as Cliente;
-    await sequelize.query("CALL spu_cliente_alta(:nombre, :apellido, :dni, :contacto)", {
-      replacements: { nombre, apellido, dni, contacto },
-    });
+    await sequelize.query(
+      "CALL spu_cliente_alta(:nombre, :apellido, :dni, :contacto)",
+      {
+        replacements: { nombre, apellido, dni, contacto },
+      },
+    );
     res.status(201).json({
       message: "Cliente creado exitosamente",
       data: req.body,
