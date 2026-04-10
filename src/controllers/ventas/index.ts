@@ -145,6 +145,26 @@ const ventasPorFuncion = async (req: Request, res: Response) => {
   }
 };
 
+const actualizarTotal = async (req: Request, res: Response) => {
+  try {
+    const { id_venta } = req.params;
+    await sequelize.query("CALL spu_venta_actualizar_total(:id_venta)", {
+      replacements: { id_venta },
+    });
+
+    res.status(200).json({
+      message: "Total de ventas actualizado exitosamente",
+      data: id_venta,
+      error: false,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Error al actualizar el total de la venta",
+      error,
+    });
+  }
+};
+
 export {
   ventaAlta,
   ventaBaja,
@@ -152,4 +172,5 @@ export {
   ventas,
   ventaPorId,
   ventasPorFuncion,
+  actualizarTotal,
 };
