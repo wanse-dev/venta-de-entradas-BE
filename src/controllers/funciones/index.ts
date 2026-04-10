@@ -6,13 +6,14 @@ const funcionAlta = async (req: Request, res: Response) => {
   try {
     const { id_administrador, descripcion, fecha, ubicacion, precio_entrada } =
       req.body as Funcion;
+    const fechaSanitizada = new Date(fecha);
     await sequelize.query(
-      "CALL spu_funcion_alta(:id_administrador, :descripcion, :fecha, :ubicacion, :precio_entrada)",
+      "CALL spu_funcion_alta(:id_administrador, :descripcion, :fechaSanitizada, :ubicacion, :precio_entrada)",
       {
         replacements: {
           id_administrador,
           descripcion,
-          fecha,
+          fechaSanitizada,
           ubicacion,
           precio_entrada,
         },
@@ -55,14 +56,15 @@ const funcionModificacion = async (req: Request, res: Response) => {
     const { id_funcion } = req.params;
     const { id_administrador, descripcion, fecha, ubicacion, precio_entrada } =
       req.body as Funcion;
+    const fechaSanitizada = new Date(fecha);
     await sequelize.query(
-      "CALL spu_funcion_modificacion(:id_funcion, :id_administrador, :descripcion, :fecha, :ubicacion, :precio_entrada)",
+      "CALL spu_funcion_modificacion(:id_funcion, :id_administrador, :descripcion, :fechaSanitizada, :ubicacion, :precio_entrada)",
       {
         replacements: {
           id_funcion,
           id_administrador,
           descripcion,
-          fecha,
+          fechaSanitizada,
           ubicacion,
           precio_entrada,
         },
