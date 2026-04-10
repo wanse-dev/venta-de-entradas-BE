@@ -122,4 +122,34 @@ const ventaPorId = async (req: Request, res: Response) => {
   }
 };
 
-export { ventaAlta, ventaBaja, ventaModificacion, ventas, ventaPorId };
+const ventasPorFuncion = async (req: Request, res: Response) => {
+  try {
+    const { id_funcion } = req.params;
+    const ventas = await sequelize.query(
+      "CALL spu_ventas_por_funcion(:id_funcion)",
+      {
+        replacements: { id_funcion },
+      },
+    );
+
+    res.status(200).json({
+      message: "Ventas obtenidas exitosamente",
+      data: ventas,
+      error: false,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Error al obtener las ventas por función",
+      error,
+    });
+  }
+};
+
+export {
+  ventaAlta,
+  ventaBaja,
+  ventaModificacion,
+  ventas,
+  ventaPorId,
+  ventasPorFuncion,
+};
