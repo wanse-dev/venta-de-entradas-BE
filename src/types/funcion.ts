@@ -5,4 +5,5 @@ export interface Funcion {
   fecha: Date;
   ubicacion: string;
   precio_entrada: number;
+  imagen_url?: string;
 }

@@ -2,9 +2,12 @@ import express, { type Request, type Response } from "express";
 import cors from "cors";
 import routes from "./routes/index.js";
 import { connectDB } from "./database.js";
+import multer from "multer";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const upload = multer({ dest: "uploads/" });
 
 app.use(cors());
 app.use(express.json());
