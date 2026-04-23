@@ -12,8 +12,8 @@ const funcionAlta = async (req: RequestWithFile, res: Response) => {
   try {
     const { id_administrador, descripcion, fecha, ubicacion, precio_entrada } =
       req.body as Funcion;
-    const fechaSanitizada = new Date(fecha);
 
+    const fechaParaSQL = new Date(fecha).toISOString().split("T")[0];
     let imagen_url = null;
 
     if (req.file) {
@@ -25,12 +25,12 @@ const funcionAlta = async (req: RequestWithFile, res: Response) => {
     }
 
     await sequelize.query(
-      "CALL spu_funcion_alta(:id_administrador, :descripcion, :fechaSanitizada, :ubicacion, :precio_entrada, :imagen_url)",
+      "CALL spu_funcion_alta(:id_administrador, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada, :imagen_url)",
       {
         replacements: {
           id_administrador,
           descripcion,
-          fechaSanitizada,
+          fechaParaSQL,
           ubicacion,
           precio_entrada,
           imagen_url,
