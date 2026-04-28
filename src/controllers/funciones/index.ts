@@ -1,49 +1,39 @@
 import type { Request, Response } from "express";
-import type { Funcion } from "../../types/funcion.js";
 import { sequelize } from "../../database.js";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
 
-interface RequestWithFile extends Request {
-  file?: Express.Multer.File;
-}
-
-const funcionAlta = async (req: RequestWithFile, res: Response) => {
+const funcionAlta = async (req: Request, res: Response) => {
   try {
-    const { id_administrador, descripcion, fecha, ubicacion, precio_entrada } =
-      req.body as Funcion;
+    const {
+      id_funcion,
+      id_obra,
+      descripcion,
+      fecha,
+      ubicacion,
+      precio_entrada,
+    } = req.body;
 
     const fechaParaSQL = new Date(fecha).toISOString().split("T")[0];
-    let imagen_url = null;
-
-    if (req.file) {
-      const uploadRes = await cloudinary.uploader.upload(req.file.path, {
-        folder: "funciones",
-      });
-      imagen_url = uploadRes.secure_url;
-      fs.unlinkSync(req.file.path);
-    }
 
     await sequelize.query(
-      "CALL spu_funcion_alta(:id_administrador, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada, :imagen_url)",
+      "CALL spu_funcion_alta(:id_funcion, :id_obra, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada)",
       {
         replacements: {
-          id_administrador,
+          id_funcion,
+          id_obra,
           descripcion,
           fechaParaSQL,
           ubicacion,
           precio_entrada,
-          imagen_url,
         },
       },
     );
+
     res.status(201).json({
       message: "Función creada exitosamente",
-      data: { ...req.body, imagen_url },
+      data: req.body,
       error: false,
     });
   } catch (error) {
-    if (req.file) fs.unlinkSync(req.file.path);
     res.status(400).json({
       message: "Error al crear la función",
       error,
@@ -70,50 +60,33 @@ const funcionBaja = async (req: Request, res: Response) => {
   }
 };
 
-const funcionModificacion = async (req: RequestWithFile, res: Response) => {
+const funcionModificacion = async (req: Request, res: Response) => {
   try {
     const { id_funcion } = req.params;
-    const {
-      id_administrador,
-      descripcion,
-      fecha,
-      ubicacion,
-      precio_entrada,
-      imagen_url: current_url,
-    } = req.body as Funcion;
-    const fechaSanitizada = new Date(fecha);
+    const { id_obra, descripcion, fecha, ubicacion, precio_entrada } = req.body;
 
-    let imagen_url = current_url || null;
-
-    if (req.file) {
-      const uploadRes = await cloudinary.uploader.upload(req.file.path, {
-        folder: "funciones",
-      });
-      imagen_url = uploadRes.secure_url;
-      fs.unlinkSync(req.file.path);
-    }
+    const fechaParaSQL = new Date(fecha).toISOString().split("T")[0];
 
     await sequelize.query(
-      "CALL spu_funcion_modificacion(:id_funcion, :id_administrador, :descripcion, :fechaSanitizada, :ubicacion, :precio_entrada, :imagen_url)",
+      "CALL spu_funcion_modificacion(:id_funcion, :id_obra, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada)",
       {
         replacements: {
           id_funcion,
-          id_administrador,
+          id_obra,
           descripcion,
-          fechaSanitizada,
+          fechaParaSQL,
           ubicacion,
           precio_entrada,
-          imagen_url,
         },
       },
     );
+
     res.status(200).json({
       message: "Función modificada exitosamente",
-      data: { ...req.body, imagen_url },
+      data: req.body,
       error: false,
     });
   } catch (error) {
-    if (req.file) fs.unlinkSync(req.file.path);
     res.status(400).json({
       message: "Error al modificar la función",
       error,
@@ -123,10 +96,10 @@ const funcionModificacion = async (req: RequestWithFile, res: Response) => {
 
 const funciones = async (req: Request, res: Response) => {
   try {
-    const funciones = await sequelize.query("CALL spu_funciones()");
+    const [results] = await sequelize.query("CALL spu_funciones()");
     res.status(200).json({
       message: "Funciones obtenidas exitosamente",
-      data: funciones,
+      data: results,
       error: false,
     });
   } catch (error) {
@@ -140,7 +113,7 @@ const funciones = async (req: Request, res: Response) => {
 const funcionPorId = async (req: Request, res: Response) => {
   try {
     const { id_funcion } = req.params;
-    const funcion = await sequelize.query(
+    const [results] = await sequelize.query(
       "CALL spu_funcion_por_id(:id_funcion)",
       {
         replacements: { id_funcion },
@@ -148,7 +121,7 @@ const funcionPorId = async (req: Request, res: Response) => {
     );
     res.status(200).json({
       message: "Función obtenida exitosamente",
-      data: funcion,
+      data: results,
       error: false,
     });
   } catch (error) {
