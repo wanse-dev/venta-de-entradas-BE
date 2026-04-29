@@ -9,7 +9,7 @@ interface RequestWithFile extends Request {
 
 const obraAlta = async (req: RequestWithFile, res: Response) => {
   try {
-    const { id_obra, id_administrador, nombre, dramaturgo } = req.body;
+    const { id_administrador, nombre, dramaturgo } = req.body;
     let imagen_url = null;
 
     if (req.file) {
@@ -21,10 +21,9 @@ const obraAlta = async (req: RequestWithFile, res: Response) => {
     }
 
     await sequelize.query(
-      "CALL spu_obra_alta(:id_obra, :id_administrador, :nombre, :dramaturgo, :imagen_url)",
+      "CALL spu_obra_alta(:id_administrador, :nombre, :dramaturgo, :imagen_url)",
       {
         replacements: {
-          id_obra,
           id_administrador,
           nombre,
           dramaturgo,

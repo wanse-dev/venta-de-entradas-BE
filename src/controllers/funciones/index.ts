@@ -3,22 +3,14 @@ import { sequelize } from "../../database.js";
 
 const funcionAlta = async (req: Request, res: Response) => {
   try {
-    const {
-      id_funcion,
-      id_obra,
-      descripcion,
-      fecha,
-      ubicacion,
-      precio_entrada,
-    } = req.body;
+    const { id_obra, descripcion, fecha, ubicacion, precio_entrada } = req.body;
 
     const fechaParaSQL = new Date(fecha).toISOString().split("T")[0];
 
     await sequelize.query(
-      "CALL spu_funcion_alta(:id_funcion, :id_obra, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada)",
+      "CALL spu_funcion_alta(:id_obra, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada)",
       {
         replacements: {
-          id_funcion,
           id_obra,
           descripcion,
           fechaParaSQL,
