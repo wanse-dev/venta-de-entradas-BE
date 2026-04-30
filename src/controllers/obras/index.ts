@@ -82,7 +82,7 @@ const obraModificacion = async (req: RequestWithFile, res: Response) => {
         folder: "obras",
       });
       imagen_url = uploadRes.secure_url;
-      fs.unlinkSync(req.file.path);
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     }
 
     await sequelize.query(
@@ -104,7 +104,9 @@ const obraModificacion = async (req: RequestWithFile, res: Response) => {
       error: false,
     });
   } catch (error) {
-    if (req.file) fs.unlinkSync(req.file.path);
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     res.status(400).json({
       message: "Error al modificar la obra",
       error,
@@ -114,7 +116,8 @@ const obraModificacion = async (req: RequestWithFile, res: Response) => {
 
 const obras = async (req: Request, res: Response) => {
   try {
-    const [results] = await sequelize.query("CALL spu_obras()");
+    const results = await sequelize.query("CALL spu_obras()");
+
     res.status(200).json({
       message: "Obras obtenidas exitosamente",
       data: results,

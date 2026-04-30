@@ -88,7 +88,7 @@ const funcionModificacion = async (req: Request, res: Response) => {
 
 const funciones = async (req: Request, res: Response) => {
   try {
-    const [results] = await sequelize.query("CALL spu_funciones()");
+    const results = await sequelize.query("CALL spu_funciones()");
     res.status(200).json({
       message: "Funciones obtenidas exitosamente",
       data: results,
