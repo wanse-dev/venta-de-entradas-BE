@@ -12,7 +12,7 @@ const ventaAlta = async (req: Request, res: Response) => {
   try {
     const { id_vendedor, id_cliente, fecha_venta, monto_total } =
       req.body as Venta;
-    const fechaSanitizada = new Date(fecha_venta);
+    const fechaSanitizada = new Date(fecha_venta).toISOString().split("T")[0];
     await sequelize.query(
       "CALL spu_venta_alta(:id_vendedor, :id_cliente, :fechaSanitizada, :monto_total)",
       {
