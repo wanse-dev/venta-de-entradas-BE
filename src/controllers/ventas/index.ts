@@ -1,9 +1,3 @@
-//id_venta: number;
-//id_vendedor: number; // FK a un administrador
-//id_cliente: number;
-//fecha_venta: Date;
-//monto_total: number;
-
 import type { Request, Response } from "express";
 import type { Venta } from "../../types/venta.js";
 import { sequelize } from "../../database.js";
@@ -40,9 +34,22 @@ const ventaAlta = async (req: Request, res: Response) => {
 const ventaBaja = async (req: Request, res: Response) => {
   try {
     const { id_venta } = req.params;
-    await sequelize.query("CALL spu_venta_baja(:id_venta)", {
-      replacements: { id_venta },
-    });
+
+    const result: any = await sequelize.query(
+      "CALL spu_venta_baja(:id_venta)",
+      {
+        replacements: { id_venta },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró la venta con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Venta eliminada exitosamente",
       data: id_venta,
@@ -61,8 +68,9 @@ const ventaModificacion = async (req: Request, res: Response) => {
     const { id_venta } = req.params;
     const { id_vendedor, id_cliente, fecha_venta, monto_total } =
       req.body as Venta;
-    const fechaSanitizada = new Date(fecha_venta);
-    await sequelize.query(
+    const fechaSanitizada = new Date(fecha_venta).toISOString().split("T")[0];
+
+    const result: any = await sequelize.query(
       "CALL spu_venta_modificacion(:id_venta, :id_vendedor, :id_cliente, :fechaSanitizada, :monto_total)",
       {
         replacements: {
@@ -74,6 +82,15 @@ const ventaModificacion = async (req: Request, res: Response) => {
         },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró la venta con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Venta modificada exitosamente",
       data: req.body,
@@ -89,10 +106,19 @@ const ventaModificacion = async (req: Request, res: Response) => {
 
 const ventas = async (req: Request, res: Response) => {
   try {
-    const ventas = await sequelize.query("CALL spu_ventas()");
+    const results: any = await sequelize.query("CALL spu_ventas()");
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron ventas",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Ventas obtenidas exitosamente",
-      data: ventas,
+      data: results,
       error: false,
     });
   } catch (error) {
@@ -106,12 +132,24 @@ const ventas = async (req: Request, res: Response) => {
 const ventaPorId = async (req: Request, res: Response) => {
   try {
     const { id_venta } = req.params;
-    const venta = await sequelize.query("CALL spu_venta_por_id(:id_venta)", {
-      replacements: { id_venta },
-    });
+    const result: any = await sequelize.query(
+      "CALL spu_venta_por_id(:id_venta)",
+      {
+        replacements: { id_venta },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "La venta solicitada no existe",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Venta obtenida exitosamente",
-      data: venta,
+      data: result,
       error: false,
     });
   } catch (error) {
@@ -125,16 +163,24 @@ const ventaPorId = async (req: Request, res: Response) => {
 const ventasPorFuncion = async (req: Request, res: Response) => {
   try {
     const { id_funcion } = req.params;
-    const ventas = await sequelize.query(
+    const results: any = await sequelize.query(
       "CALL spu_ventas_por_funcion(:id_funcion)",
       {
         replacements: { id_funcion },
       },
     );
 
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron ventas para la función solicitada",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Ventas obtenidas exitosamente",
-      data: ventas,
+      data: results,
       error: false,
     });
   } catch (error) {
@@ -148,9 +194,22 @@ const ventasPorFuncion = async (req: Request, res: Response) => {
 const actualizarTotal = async (req: Request, res: Response) => {
   try {
     const { id_venta } = req.params;
-    await sequelize.query("CALL spu_venta_actualizar_total(:id_venta)", {
-      replacements: { id_venta },
-    });
+    const results: any = await sequelize.query(
+      "CALL spu_venta_actualizar_total(:id_venta)",
+      {
+        replacements: { id_venta },
+      },
+    );
+
+    console.log(results);
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "La venta a la cual se intenta actualizar el total no existe",
+        data: null,
+        error: true,
+      });
+    }
 
     res.status(200).json({
       message: "Total de ventas actualizado exitosamente",

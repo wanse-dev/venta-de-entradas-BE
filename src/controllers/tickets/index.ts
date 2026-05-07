@@ -15,6 +15,7 @@ const ticketAlta = async (req: Request, res: Response) => {
         },
       },
     );
+
     res.status(201).json({
       message: "Ticket creado exitosamente",
       data: req.body,
@@ -31,9 +32,21 @@ const ticketAlta = async (req: Request, res: Response) => {
 const ticketBaja = async (req: Request, res: Response) => {
   try {
     const { id_ticket } = req.params;
-    await sequelize.query("CALL spu_ticket_baja(:id_ticket)", {
-      replacements: { id_ticket },
-    });
+    const result: any = await sequelize.query(
+      "CALL spu_ticket_baja(:id_ticket)",
+      {
+        replacements: { id_ticket },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el ticket con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Ticket eliminado exitosamente",
       data: id_ticket,
@@ -51,7 +64,7 @@ const ticketModificacion = async (req: Request, res: Response) => {
   try {
     const { id_ticket } = req.params;
     const { id_venta, id_funcion, id_espectador } = req.body as Ticket;
-    await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_ticket_modificacion(:id_ticket, :id_venta, :id_funcion, :id_espectador)",
       {
         replacements: {
@@ -62,6 +75,15 @@ const ticketModificacion = async (req: Request, res: Response) => {
         },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el ticket con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Ticket modificado exitosamente",
       data: req.body,
@@ -77,10 +99,19 @@ const ticketModificacion = async (req: Request, res: Response) => {
 
 const tickets = async (req: Request, res: Response) => {
   try {
-    const tickets = await sequelize.query("CALL spu_tickets()");
+    const results: any = await sequelize.query("CALL spu_tickets()");
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron tickets",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Tickets obtenidos exitosamente",
-      data: tickets,
+      data: results,
       error: false,
     });
   } catch (error) {
@@ -94,12 +125,24 @@ const tickets = async (req: Request, res: Response) => {
 const ticketPorId = async (req: Request, res: Response) => {
   try {
     const { id_ticket } = req.params;
-    const ticket = await sequelize.query("CALL spu_ticket_por_id(:id_ticket)", {
-      replacements: { id_ticket },
-    });
+    const result: any = await sequelize.query(
+      "CALL spu_ticket_por_id(:id_ticket)",
+      {
+        replacements: { id_ticket },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "El ticket solicitado no existe",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Ticket obtenido exitosamente",
-      data: ticket,
+      data: result,
       error: false,
     });
   } catch (error) {
