@@ -24,9 +24,21 @@ const adminAlta = async (req: Request, res: Response) => {
 const adminBaja = async (req: Request, res: Response) => {
   try {
     const { id_administrador } = req.params;
-    await sequelize.query("CALL spu_admin_baja(:id_administrador)", {
-      replacements: { id_administrador },
-    });
+    const result: any = await sequelize.query(
+      "CALL spu_admin_baja(:id_administrador)",
+      {
+        replacements: { id_administrador },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el administrador con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Administrador eliminado exitosamente",
       data: id_administrador,
@@ -44,12 +56,21 @@ const adminModificacion = async (req: Request, res: Response) => {
   try {
     const { id_administrador } = req.params;
     const { nombre } = req.body as Administrador;
-    await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_admin_modificacion(:id_administrador, :nombre)",
       {
         replacements: { id_administrador, nombre },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el administrador con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Administrador modificado exitosamente",
       data: req.body,
@@ -65,10 +86,19 @@ const adminModificacion = async (req: Request, res: Response) => {
 
 const administradores = async (req: Request, res: Response) => {
   try {
-    const administradores = await sequelize.query("CALL spu_administradores()");
+    const results: any = await sequelize.query("CALL spu_administradores()");
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron administradores",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Administradores obtenidos exitosamente",
-      data: administradores,
+      data: results,
       error: false,
     });
   } catch (error) {
@@ -82,15 +112,24 @@ const administradores = async (req: Request, res: Response) => {
 const adminPorId = async (req: Request, res: Response) => {
   try {
     const { id_administrador } = req.params;
-    const administrador = await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_admin_por_id(:id_administrador)",
       {
         replacements: { id_administrador },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el administrador con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Administrador obtenido exitosamente",
-      data: administrador,
+      data: result,
       error: false,
     });
   } catch (error) {
@@ -101,10 +140,4 @@ const adminPorId = async (req: Request, res: Response) => {
   }
 };
 
-export {
-  adminAlta,
-  adminBaja,
-  adminModificacion,
-  administradores,
-  adminPorId,
-};
+export { adminAlta, adminBaja, adminModificacion, administradores, adminPorId };

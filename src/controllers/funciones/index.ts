@@ -36,9 +36,21 @@ const funcionAlta = async (req: Request, res: Response) => {
 const funcionBaja = async (req: Request, res: Response) => {
   try {
     const { id_funcion } = req.params;
-    await sequelize.query("CALL spu_funcion_baja(:id_funcion)", {
-      replacements: { id_funcion },
-    });
+    const result: any = await sequelize.query(
+      "CALL spu_funcion_baja(:id_funcion)",
+      {
+        replacements: { id_funcion },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró la función con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Función eliminada exitosamente",
       data: id_funcion,
@@ -59,7 +71,7 @@ const funcionModificacion = async (req: Request, res: Response) => {
 
     const fechaParaSQL = new Date(fecha).toISOString().split("T")[0];
 
-    await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_funcion_modificacion(:id_funcion, :id_obra, :descripcion, :fechaParaSQL, :ubicacion, :precio_entrada)",
       {
         replacements: {
@@ -72,6 +84,14 @@ const funcionModificacion = async (req: Request, res: Response) => {
         },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró la función con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
 
     res.status(200).json({
       message: "Función modificada exitosamente",
@@ -88,7 +108,16 @@ const funcionModificacion = async (req: Request, res: Response) => {
 
 const funciones = async (req: Request, res: Response) => {
   try {
-    const results = await sequelize.query("CALL spu_funciones()");
+    const results: any = await sequelize.query("CALL spu_funciones()");
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron funciones",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Funciones obtenidas exitosamente",
       data: results,
@@ -105,15 +134,24 @@ const funciones = async (req: Request, res: Response) => {
 const funcionPorId = async (req: Request, res: Response) => {
   try {
     const { id_funcion } = req.params;
-    const [results] = await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_funcion_por_id(:id_funcion)",
       {
         replacements: { id_funcion },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron funciones",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Función obtenida exitosamente",
-      data: results,
+      data: result,
       error: false,
     });
   } catch (error) {

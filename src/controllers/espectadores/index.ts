@@ -27,9 +27,21 @@ const espectadorAlta = async (req: Request, res: Response) => {
 const espectadorBaja = async (req: Request, res: Response) => {
   try {
     const { id_espectador } = req.params;
-    await sequelize.query("CALL spu_espectador_baja(:id_espectador)", {
-      replacements: { id_espectador },
-    });
+    const result: any = await sequelize.query(
+      "CALL spu_espectador_baja(:id_espectador)",
+      {
+        replacements: { id_espectador },
+      },
+    );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el espectador con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Espectador eliminado exitosamente",
       data: id_espectador,
@@ -47,12 +59,21 @@ const espectadorModificacion = async (req: Request, res: Response) => {
   try {
     const { id_espectador } = req.params;
     const { nombre, apellido, dni } = req.body as Espectador;
-    await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_espectador_modificacion(:id_espectador, :nombre, :apellido, :dni)",
       {
         replacements: { id_espectador, nombre, apellido, dni },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el espectador con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Espectador modificado exitosamente",
       data: req.body,
@@ -68,10 +89,19 @@ const espectadorModificacion = async (req: Request, res: Response) => {
 
 const espectadores = async (req: Request, res: Response) => {
   try {
-    const espectadores = await sequelize.query("CALL spu_espectadores()");
+    const results: any = await sequelize.query("CALL spu_espectadores()");
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron espectadores",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Espectadores obtenidos exitosamente",
-      data: espectadores,
+      data: results,
       error: false,
     });
   } catch (error) {
@@ -85,15 +115,24 @@ const espectadores = async (req: Request, res: Response) => {
 const espectadorPorId = async (req: Request, res: Response) => {
   try {
     const { id_espectador } = req.params;
-    const espectador = await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_espectador_por_id(:id_espectador)",
       {
         replacements: { id_espectador },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró el espectador con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Espectador obtenido exitosamente",
-      data: espectador,
+      data: result,
       error: false,
     });
   } catch (error) {

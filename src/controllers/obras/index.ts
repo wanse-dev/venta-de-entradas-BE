@@ -49,9 +49,18 @@ const obraAlta = async (req: RequestWithFile, res: Response) => {
 const obraBaja = async (req: Request, res: Response) => {
   try {
     const { id_obra } = req.params;
-    await sequelize.query("CALL spu_obra_baja(:id_obra)", {
+    const result: any = await sequelize.query("CALL spu_obra_baja(:id_obra)", {
       replacements: { id_obra },
     });
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró la obra con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Obra eliminada exitosamente",
       data: id_obra,
@@ -85,7 +94,7 @@ const obraModificacion = async (req: RequestWithFile, res: Response) => {
       if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     }
 
-    await sequelize.query(
+    const result: any = await sequelize.query(
       "CALL spu_obra_modificacion(:id_obra, :id_administrador, :nombre, :dramaturgo, :imagen_url)",
       {
         replacements: {
@@ -97,6 +106,14 @@ const obraModificacion = async (req: RequestWithFile, res: Response) => {
         },
       },
     );
+
+    if (result[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontró la obra con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
 
     res.status(200).json({
       message: "Obra modificada exitosamente",
@@ -116,7 +133,15 @@ const obraModificacion = async (req: RequestWithFile, res: Response) => {
 
 const obras = async (req: Request, res: Response) => {
   try {
-    const results = await sequelize.query("CALL spu_obras()");
+    const results: any = await sequelize.query("CALL spu_obras()");
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron obras",
+        data: null,
+        error: true,
+      });
+    }
 
     res.status(200).json({
       message: "Obras obtenidas exitosamente",
@@ -134,9 +159,21 @@ const obras = async (req: Request, res: Response) => {
 const obraPorId = async (req: Request, res: Response) => {
   try {
     const { id_obra } = req.params;
-    const [results] = await sequelize.query("CALL spu_obra_por_id(:id_obra)", {
-      replacements: { id_obra },
-    });
+    const results: any = await sequelize.query(
+      "CALL spu_obra_por_id(:id_obra)",
+      {
+        replacements: { id_obra },
+      },
+    );
+
+    if (results[0]?.filasAfectadas === 0) {
+      return res.status(404).json({
+        message: "No se encontraron obras con el ID proporcionado",
+        data: null,
+        error: true,
+      });
+    }
+
     res.status(200).json({
       message: "Obra obtenida exitosamente",
       data: results,
