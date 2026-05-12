@@ -101,7 +101,7 @@ const tickets = async (req: Request, res: Response) => {
   try {
     const results: any = await sequelize.query("CALL spu_tickets()");
 
-    if (results[0]?.filasAfectadas === 0) {
+    if (!results || results.length === 0) {
       return res.status(404).json({
         message: "No se encontraron tickets",
         data: null,
@@ -132,7 +132,7 @@ const ticketPorId = async (req: Request, res: Response) => {
       },
     );
 
-    if (result[0]?.filasAfectadas === 0) {
+    if (!result || result.length === 0) {
       return res.status(404).json({
         message: "El ticket solicitado no existe",
         data: null,

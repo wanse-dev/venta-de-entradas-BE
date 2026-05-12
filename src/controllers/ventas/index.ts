@@ -108,7 +108,7 @@ const ventas = async (req: Request, res: Response) => {
   try {
     const results: any = await sequelize.query("CALL spu_ventas()");
 
-    if (results[0]?.filasAfectadas === 0) {
+    if (!results || results.length === 0) {
       return res.status(404).json({
         message: "No se encontraron ventas",
         data: null,
@@ -139,7 +139,7 @@ const ventaPorId = async (req: Request, res: Response) => {
       },
     );
 
-    if (result[0]?.filasAfectadas === 0) {
+    if (!result || result.length === 0) {
       return res.status(404).json({
         message: "La venta solicitada no existe",
         data: null,
@@ -170,7 +170,7 @@ const ventasPorFuncion = async (req: Request, res: Response) => {
       },
     );
 
-    if (results[0]?.filasAfectadas === 0) {
+    if (!results || results.length === 0) {
       return res.status(404).json({
         message: "No se encontraron ventas para la función solicitada",
         data: null,
@@ -201,9 +201,7 @@ const actualizarTotal = async (req: Request, res: Response) => {
       },
     );
 
-    console.log(results);
-
-    if (results[0]?.filasAfectadas === 0) {
+    if (!results || results.length === 0) {
       return res.status(404).json({
         message: "La venta a la cual se intenta actualizar el total no existe",
         data: null,

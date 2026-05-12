@@ -135,7 +135,7 @@ const obras = async (req: Request, res: Response) => {
   try {
     const results: any = await sequelize.query("CALL spu_obras()");
 
-    if (results[0]?.filasAfectadas === 0) {
+    if (!results || results.length === 0) {
       return res.status(404).json({
         message: "No se encontraron obras",
         data: null,
@@ -166,9 +166,9 @@ const obraPorId = async (req: Request, res: Response) => {
       },
     );
 
-    if (results[0]?.filasAfectadas === 0) {
+    if (!results || results.length === 0) {
       return res.status(404).json({
-        message: "No se encontraron obras con el ID proporcionado",
+        message: "No se encontró la obra con el ID proporcionado",
         data: null,
         error: true,
       });
